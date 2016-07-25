@@ -1,16 +1,16 @@
 <?php
 
-namespace Fusion\Frontend;
+namespace Packaging_Preview;
 
-use Fusion\Config;
-use Fusion\Objects\Attachment;
-use Fusion\Objects\Author;
-use Fusion\Objects\Gallery;
-use Fusion\Objects\Post;
-use Fusion\Objects\Page;
-use Fusion\Objects\Show;
-use Fusion\Objects\Term;
-use Fusion\Objects\Video;
+//use Fusion\Config;
+//use Fusion\Objects\Attachment;
+//use Fusion\Objects\Author;
+//use Fusion\Objects\Gallery;
+//use Fusion\Objects\Post;
+//use Fusion\Objects\Page;
+//use Fusion\Objects\Show;
+//use Fusion\Objects\Term;
+//use Fusion\Objects\Video;
 
 class Distribution_Metadata {
 

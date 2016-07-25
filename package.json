@@ -1,0 +1,53 @@
+{
+  "name": "packaging-preview",
+  "version": "0.1.0",
+  "description": "Basic SEO distribution fields and preview",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fusioneng/fusion-theme.git"
+  },
+  "author": "fusionengineering",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fusioneng/fusion-theme/issues"
+  },
+  "homepage": "https://github.com/fusioneng/fusion-theme#readme",
+  "devDependencies": {
+    "autoprefixer": "^6.3.7",
+    "browserify": "^13.0.1",
+    "grunt": "^1.0.1",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-jasmine": "^1.0.3",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "^1.2.0",
+    "grunt-scss-lint": "^0.3.8",
+    "grunt-strip-css-comments": "^1.3.0",
+    "remapify": "^2.1.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "jquery": "global:jQuery",
+    "ga": "global:ga",
+    "fusionData": "global:fusionData",
+    "underscore": "global:_",
+    "wp": "global:wp",
+    "backbone": {
+      "exports": "global:Backbone",
+      "depends": [
+        "jquery",
+        "underscore"
+      ]
+    },
+    "tinymce": "global:tinymce"
+  }
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fusion\Admin\Fields;
+namespace Packaging_Preview;
 
 class Distribution_Fields {
 
@@ -20,7 +20,7 @@ class Distribution_Fields {
 	 * Set up field actions
 	 */
 	private function setup_actions() {
-		add_action( 'fusion_registered_post_types', array( $this, 'action_fusion_registered_post_types' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 	}
 
@@ -35,11 +35,11 @@ class Distribution_Fields {
 	/**
 	 * Do whatever needed after post types have been registered
 	 */
-	public function action_fusion_registered_post_types() {
-		foreach ( array_merge( Fusion()->get_content_post_types(), array( 'fusion_sponsored' ) ) as $post_type ) {
+	public function action_init() {
+		foreach ( $this->post_types as $post_type ) {
 			add_action( "fm_post_{$post_type}", array( $this, 'action_fm_post_content_post_types' ) );
 		}
-		foreach ( Fusion()->get_taxonomies() as $taxonomy ) {
+		foreach ( $this->taxonomies as $taxonomy ) {
 			// These fields are lower priority on term pages
 			add_action( "fm_term_{$taxonomy}", array( $this, 'action_fm_term_content_taxonomies' ), 20 );
 		}
@@ -51,14 +51,13 @@ class Distribution_Fields {
 	public function action_fm_post_content_post_types() {
 		$post_type = substr( current_filter(), 8 );
 		$meta_group = $this->register_distribution_fields( 'post', $post_type );
-		$meta_group->add_meta_box( esc_html__( 'Packaging', 'fusion' ) . '&nbsp;<em><a class="fusion-help" href="https://drive.google.com/open?id=1o2eZL2iFPS7UN9as3zMwr6OrZGIqJn3EAZEmaLWAoOU" target="_blank">' . esc_html__( 'Packaging guidelines and best practices', 'fusion' ) . '</a></em>',
-			$post_type, 'normal', 'high' );
+		$meta_group->add_meta_box( esc_html__( 'Packaging', 'packaging-preview' ), $post_type, 'normal', 'high' );
 	}
 
 	public function action_fm_term_content_taxonomies() {
 		$taxonomy = substr( current_filter(), 8 );
 		$meta_group = $this->register_distribution_fields( 'term', $taxonomy );
-		$meta_group->add_term_form( esc_html__( 'Packaging', 'fusion' ),
+		$meta_group->add_term_form( esc_html__( 'Packaging', 'packaging-preview' ),
 			$taxonomy, false, true );
 	}
 
@@ -81,25 +80,25 @@ class Distribution_Fields {
 			) );
 
 		// Can't use $fm_group->add_child(): https://github.com/alleyinteractive/wordpress-fieldmanager/pull/172
-		$meta_group->children['facebook'] = new \Fieldmanager_Group( '<i class="icon-facebook-black"></i> ' . esc_html__( 'Facebook', 'fusion' ), array(
+		$meta_group->children['facebook'] = new \Fieldmanager_Group( '<i class="icon-facebook-black"></i> ' . esc_html__( 'Facebook', 'packaging-preview' ), array(
 			'name'                    => 'facebook',
 			'escape'                  => array( 'label' => 'wp_kses_post' ),
 			'children'                => array(
-				'share_text' => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Facebook Share Text', 'fusion' ) . '</strong>', array(
+				'share_text' => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Facebook Share Text', 'packaging-preview' ) . '</strong>', array(
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
 						),
-					'description'     => esc_html__( "This will be used by the social team and appear on Fusion’s Facebook page. Some suggestions for this text: a quote from the article, a second headline, a personal reaction.", 'fusion' ),
+					'description'     => esc_html__( "Some suggestions for this text: a quote from the article, a second headline, a personal reaction.", 'packaging-preview' ),
 					) ),
-				'image'               => new \Fieldmanager_Media( '<strong>' . esc_html__( 'Image', 'fusion' ) . '</strong>', array(
-					'description'     => __( '<a target="_blank" class="fusion-help" href="https://docs.google.com/document/d/1Pt4r5B-a5KPfLtOSzfEmd7iKHCGNyf-XbkmEHD7kF08/edit#heading=h.nt5tqx8zw17u">Recrop the Facebook open graph thumbnail if not optimized for sharing.</a>', 'fusion' ),
+				'image'               => new \Fieldmanager_Media( '<strong>' . esc_html__( 'Image', 'packaging-preview' ) . '</strong>', array(
+					'description'     => __( 'Recrop the Facebook open graph thumbnail if not optimized for sharing.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post', 'description' => 'wp_kses_post' ),
-					'button_label'    => esc_html__( 'Change the social image', 'fusion' ),
-					'modal_button_label' => esc_html__( 'Select image', 'fusion' ),
-					'modal_title'     => esc_html__( 'Choose image', 'fusion' ),
+					'button_label'    => esc_html__( 'Change the social image', 'packaging-preview' ),
+					'modal_button_label' => esc_html__( 'Select image', 'packaging-preview' ),
+					'modal_title'     => esc_html__( 'Choose image', 'packaging-preview' ),
 					) ),
-				'title'               => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Facebook Headline', 'fusion' ) . '</strong>', array(
+				'title'               => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Facebook Headline', 'packaging-preview' ) . '</strong>', array(
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -108,8 +107,8 @@ class Distribution_Fields {
 						'maxlength'       => 100,
 						)
 					) ),
-				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'fusion' ) . '</strong>', array(
-					'description'     => esc_html__( 'Some suggestions for this text: something surprising about the article, a brief opinion, a message with a more pointed voice or spin than the headline.', 'fusion' ),
+				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'packaging-preview' ) . '</strong>', array(
+					'description'     => esc_html__( 'Some suggestions for this text: something surprising about the article, a brief opinion, a message with a more pointed voice or spin than the headline.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -121,12 +120,12 @@ class Distribution_Fields {
 					) )
 				),
 			) );
-		$meta_group->children['twitter'] = new \Fieldmanager_Group( '<i class="icon-twitter-black"></i> ' . esc_html__( 'Twitter', 'fusion' ), array(
+		$meta_group->children['twitter'] = new \Fieldmanager_Group( '<i class="icon-twitter-black"></i> ' . esc_html__( 'Twitter', 'packaging-preview' ), array(
 			'name'                    => 'twitter',
 			'escape'                  => array( 'label' => 'wp_kses_post' ),
 			'children'                => array(
-				'share_text'          => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Twitter Headline', 'fusion' ) . '</strong>', array(
-					'description'     => esc_html__( 'This is the tweet when a reader shares this story (defaults to headline + shortlink + @fusion). If the post references an event or topic that has a hashtag, try to include it, and if it includes a person or brand that is on Twitter, use their handle when possible.', 'fusion' ),
+				'share_text'          => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Twitter Headline', 'packaging-preview' ) . '</strong>', array(
+					'description'     => esc_html__( 'This is the tweet when a reader shares this story (defaults to headline + shortlink + @fusion). If the post references an event or topic that has a hashtag, try to include it, and if it includes a person or brand that is on Twitter, use their handle when possible.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -135,14 +134,14 @@ class Distribution_Fields {
 						'maxlength'       => constant( 'FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH' ),
 						)
 					) ),
-				'image'               => new \Fieldmanager_Media( '<strong>' . esc_html__( 'Image', 'fusion' ) . '</strong>', array(
-					'description'     => __( '<a target="_blank" class="fusion-help" href="https://docs.google.com/a/fusion.net/document/d/1o2eZL2iFPS7UN9as3zMwr6OrZGIqJn3EAZEmaLWAoOU/edit#heading=h.7hep3tstdu44">Override the featured image if you have a special image or chart you want to share on Twitter that you didn\'t use as the featured image.</a>', 'fusion' ),
+				'image'               => new \Fieldmanager_Media( '<strong>' . esc_html__( 'Image', 'packaging-preview' ) . '</strong>', array(
+					'description'     => __( 'Override the featured image if you have a special image or chart you want to share on Twitter that you didn\'t use as the featured image.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post', 'description' => 'wp_kses_post' ),
-					'button_label'    => esc_html__( 'Change the social image', 'fusion' ),
-					'modal_button_label' => esc_html__( 'Select image', 'fusion' ),
-					'modal_title'     => esc_html__( 'Choose image', 'fusion' ),
+					'button_label'    => esc_html__( 'Change the social image', 'packaging-preview' ),
+					'modal_button_label' => esc_html__( 'Select image', 'packaging-preview' ),
+					'modal_title'     => esc_html__( 'Choose image', 'packaging-preview' ),
 					) ),
-				'title'               => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Twitter Card Headline', 'fusion' ) . '</strong>', array(
+				'title'               => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Twitter Card Headline', 'packaging-preview' ) . '</strong>', array(
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -151,8 +150,8 @@ class Distribution_Fields {
 						'maxlength'       => 70,
 						)
 					) ),
-				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'fusion' ) . '</strong>', array(
-					'description'     => esc_html__( 'Descriptions are limited to 200 characters.', 'fusion' ),
+				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'packaging-preview' ) . '</strong>', array(
+					'description'     => esc_html__( 'Descriptions are limited to 200 characters.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -164,12 +163,12 @@ class Distribution_Fields {
 					) )
 				),
 			) );
-		$seo_group = new \Fieldmanager_Group( '<i class="icon-search"></i> ' . esc_html__( 'SEO', 'fusion' ), array(
+		$seo_group = new \Fieldmanager_Group( '<i class="icon-search"></i> ' . esc_html__( 'SEO', 'packaging-preview' ), array(
 			'name'                    => 'seo',
 			'escape'                  => array( 'label' => 'wp_kses_post' ),
 			'children'                => array(
-				'title'          => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'SEO Headline / Title Tag', 'fusion' ) . '</strong>', array(
-					'description'     => esc_html__( 'What keywords or phrases would you use to search for this story? Are any of them missing from your headline? Are keywords front-loaded?', 'fusion' ),
+				'title'          => new \Fieldmanager_TextField( '<strong>' . esc_html__( 'SEO Headline / Title Tag', 'packaging-preview' ) . '</strong>', array(
+					'description'     => esc_html__( 'What keywords or phrases would you use to search for this story? Are any of them missing from your headline? Are keywords front-loaded?', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -178,7 +177,7 @@ class Distribution_Fields {
 						'data-fusion-max-length-countdown-placeholder' => 1,
 						)
 					) ),
-				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'fusion' ) . '</strong>', array(
+				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'packaging-preview' ) . '</strong>', array(
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -193,15 +192,15 @@ class Distribution_Fields {
 
 		// Google News fields are only applicable to Posts, not to Terms
 		if ( 'post' === $context ) {
-			$seo_group->children['keywords'] = new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Google News Keywords', 'fusion' ) . '</strong>', array(
+			$seo_group->children['keywords'] = new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Google News Keywords', 'packaging-preview' ) . '</strong>', array(
 				'name'            => 'keywords',
-				'description'     => sprintf( __( '<a class="fusion-help" target="_blank" href="%s">These keywords (up to 10, separated by commas) should answer the "who, what, and where" of the story, and include any potential misspellings of those keywords.</a>', 'fusion' ), 'https://docs.google.com/a/fusion.net/document/d/1o2eZL2iFPS7UN9as3zMwr6OrZGIqJn3EAZEmaLWAoOU/edit#heading=h.xszsas4yizyg' ),
+				'description'     => sprintf( __( 'These keywords (up to 10, separated by commas) should answer the "who, what, and where" of the story, and include any potential misspellings of those keywords.', 'packaging-preview' ), 'https://docs.google.com/a/fusion.net/document/d/1o2eZL2iFPS7UN9as3zMwr6OrZGIqJn3EAZEmaLWAoOU/edit#heading=h.xszsas4yizyg' ),
 				'escape'          => array( 'label' => 'wp_kses_post', 'description' => 'wp_kses_post' ),
 				'attributes'      => array(
 					'style'           => 'width:100%',
 					)
 				) );
-			$seo_group->children['standout'] = new \Fieldmanager_Checkbox( '<strong>' . esc_html__( 'Google News Standout', 'fusion' ) . '</strong>', array(
+			$seo_group->children['standout'] = new \Fieldmanager_Checkbox( '<strong>' . esc_html__( 'Google News Standout', 'packaging-preview' ) . '</strong>', array(
 				'name'            => 'standout',
 				'escape'          => array( 'label' => 'wp_kses_post' ),
 				) );
@@ -210,16 +209,16 @@ class Distribution_Fields {
 		$meta_group->children['seo'] = $seo_group;
 
 		if ( 'post' === $context ) {
-			$meta_group->children['fusion'] = new \Fieldmanager_Group( '<i class="logo-fusion-f"></i> ' . esc_html__( 'Fusion', 'fusion' ), array(
-				'name'                    => 'fusion',
+			$meta_group->children['packaging-preview'] = new \Fieldmanager_Group( '<i class="logo-fusion-f"></i> ' . esc_html__( 'Fusion', 'packaging-preview' ), array(
+				'name'                    => 'packaging-preview',
 				'escape'                  => array( 'label' => 'wp_kses_post' ),
 				'children'                => array(
-					'why' => new \Fieldmanager_TextArea( '<strong>' . esc_html__( "What's your why-Fusion graph?", 'fusion' ) . '</strong>', array(
+					'why' => new \Fieldmanager_TextArea( '<strong>' . esc_html__( "What's your why-Fusion graph?", 'packaging-preview' ) . '</strong>', array(
 						'escape'          => array( 'label' => 'wp_kses_post' ),
 						'attributes'      => array(
 							'style'           => 'width:100%',
 							),
-						'description'     => esc_html__( "How are you showing readers what makes this a Fusion story? Copy/paste the sentence(s) from your piece here.", 'fusion' ),
+						'description'     => esc_html__( "How are you showing readers what makes this a Fusion story? Copy/paste the sentence(s) from your piece here.", 'packaging-preview' ),
 						) ),
 				)
 			) );
@@ -293,10 +292,10 @@ class Distribution_Fields {
 					if ( $obj->is_google_standout_enabled() ) {
 						$standout_description = 'This post is already a standout. Hurrah!';
 					} else if ( count( $current_standouts ) < 7 ) {
-						$standout_description = __( 'It\'s time for another standout. Reserved for growth editor use only.', 'fusion' );
+						$standout_description = __( 'It\'s time for another standout. Reserved for growth editor use only.', 'packaging-preview' );
 						$standout_disabled = false;
 					} else {
-						$standout_description = __( 'Egads! There are already 7 standout posts in the last week. Give it a couple days.', 'fusion' );
+						$standout_description = __( 'Egads! There are already 7 standout posts in the last week. Give it a couple days.', 'packaging-preview' );
 						$standout_disabled = true;
 					}
 
@@ -319,25 +318,6 @@ class Distribution_Fields {
 		}
 
 		return $out;
-	}
-
-	/**
-	 */
-	public function filter_fm_context_presave_data( $data, $old, $context ) {
-		if ( 'post' === $context->fm->data_type && 'fusion_distribution' === $context->fm->name
-				&& ! empty( $data['seo'] ) && ! empty( $data['seo']['standout'] )
-				&& isset( $context->fm->data_id ) ){
-			$current_standouts = Fusion()->content_model->get_last_week_standouts();
-			if ( count( $current_standouts ) < 7 ) {
-				Fusion()->content_model->add_post_to_standouts( $context->fm->data_id );
-			} else {
-				$data['seo']['standout'] = false;
-			}
-		} else if ( 'fusion_distribution' === $context->fm->name && ! empty( $data['seo'] ) && ! empty( $old['seo']['standout'] ) && isset( $context->fm->data_id ) ){
-			$data['seo']['standout'] = true;
-		}
-
-		return $data;
 	}
 
 	/**

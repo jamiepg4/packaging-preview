@@ -1,16 +1,15 @@
 <?php
 
-namespace Fusion\Admin;
+namespace Packaging_Preview;
 
-use Fusion\Config;
-use Fusion\Frontend\Distribution_Metadata;
-use Fusion\Objects\Post;
-use Fusion\Objects\Term;
-use Fusion\Utils;
+//use Fusion\Config;
+//use Fusion\Frontend\Distribution_Metadata;
+//use Fusion\Objects\Post;
+//use Fusion\Objects\Term;
+//use Fusion\Utils;
 
 class SEO_Preview {
 
-	private $ver = '1.0';
 	private static $instance;
 
 	public static function get_instance() {
