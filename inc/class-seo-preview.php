@@ -53,6 +53,10 @@ class SEO_Preview {
 			$object_id = get_the_ID();
 		}
 
+		if ( empty( $context ) || empty( $object_id ) ) {
+			return;
+		}
+
 		wp_enqueue_script( 'seo-preview', plugin_dir_url( dirname( __FILE__ ) ) . '/assets/js/build/seo-preview.js',
 			array( 'jquery', 'backbone', 'media-views', 'utils' ), $this->ver, true
 		);
@@ -66,15 +70,12 @@ class SEO_Preview {
 			//$twitter_username = Config::get( 'TWITTER_USERNAME' );
 		//}
 
-		$facebook_share_text = Packaging_Preview\get_facebook_share_text_for_promotion( $object_id );
-		$facebook_share_text = ! empty( $facebook_share_text ) ? array_shift( $facebook_share_text ) : '';
-
 		$model = array(
 			'title'                       => Packaging_Preview\get_seo_title( $object_id ),
 			'url'                         => get_permalink( $object_id ),
-			'shortlink'                   => 'bit.ly' , //Packaging_Preview\get_share_link( $object_id ),
+			'shortlink'                   => Packaging_Preview\get_share_link( $object_id ),
 			'desc'                        => Packaging_Preview\get_seo_description( $object_id ),
-			'image'                       => 'http://placekitten.org/200/300', //Packaging_Preview\get_featured_image_url( $object_id, 'full' ),
+			'image'                       => Packaging_Preview\get_featured_image_url( $object_id, 'full' ),
 			'twitter_card_title'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'title' ),
 			'twitter_card_desc'           => Packaging_Preview\decode_html_entities(Packaging_Preview\get_twitter_card_tag( $object_id, 'description' )),
 			'twitter_card_image'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'image' ),
@@ -84,7 +85,7 @@ class SEO_Preview {
 			'twitter_char_limit'          => FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH,
 			'twitter_avatar'              => get_template_directory_uri() . '/assets/images/twitter-avatar.png',
 			'twitter_avatar_default'      => get_template_directory_uri() . '/assets/images/twitter-avatar-default.png',
-			'facebook_share_text'         => $facebook_share_text,
+			'facebook_share_text'         => Packaging_Preview\get_facebook_share_text_for_promotion( $object_id ),
 			'open_graph_title'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'title' ),
 			'open_graph_desc'             => Packaging_Preview\decode_html_entities(Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'description' )),
 			'open_graph_image'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'image' )[0],

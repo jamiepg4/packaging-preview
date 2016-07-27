@@ -34,6 +34,7 @@ class Packaging_Preview {
 		static::$post_types = apply_filters( 'packaging_preview_post_types', array( 'post' ) );
 		static::$taxonomies = apply_filters( 'packaging_preview_taxonomies', array( 'category', 'post_tag' ) );
 
+		require_once 'inc/utils-functions.php';
 		require_once 'inc/distribution-meta-functions.php';
 
 		$this->distribution_fields = Distribution_Fields::get_instance();

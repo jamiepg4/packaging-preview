@@ -30,7 +30,6 @@ class Distribution_Fields {
 	 * Set up field filters
 	 */
 	private function setup_filters() {
-		add_filter( 'fm_context_after_presave_data', array( $this, 'filter_fm_context_presave_data' ), 10, 3 );
 		add_filter( 'fm_element_markup_start',       array( $this, 'filter_fm_element_markup_start' ), 10, 2 );
 	}
 
@@ -38,7 +37,6 @@ class Distribution_Fields {
 	 * Do whatever needed after post types have been registered
 	 */
 	public function action_init() {
-		error_log( 'initing packaging fields' );
 		foreach ( Packaging_Preview::$post_types as $post_type ) {
 			add_action( "fm_post_{$post_type}", array( $this, 'action_fm_post_content_post_types' ) );
 		}
