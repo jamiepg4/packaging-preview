@@ -2,11 +2,7 @@
 
 namespace Packaging_Preview;
 
-//use Fusion\Config;
-//use Fusion\Frontend\Distribution_Metadata;
-//use Fusion\Objects\Post;
-//use Fusion\Objects\Term;
-//use Fusion\Utils;
+use Packaging_Preview;
 
 class SEO_Preview {
 
@@ -19,7 +15,6 @@ class SEO_Preview {
 			self::$instance->load();
 		}
 		return self::$instance;
-
 	}
 
 	private function load() {
@@ -33,70 +28,69 @@ class SEO_Preview {
 	public function action_admin_enqueue_scripts( $hook ) {
 
 		$current_screen = get_current_screen();
+
 		if ( 'edit-tags' === $current_screen->base && isset( $current_screen->taxonomy )
-				&& in_array( $current_screen->taxonomy, Fusion()->get_content_taxonomies() )
+				&& in_array( $current_screen->taxonomy, Packaging_Preview::$taxonomies )
 				&& ! empty( $_GET['tag_ID'] ) ) {
 			$queried_term = get_term( absint( $_GET['tag_ID'] ), $current_screen->taxonomy );
 			if ( ! $queried_term ) {
 				return;
 			}
 			$context = 'term';
-			$obj = Term::get_by_term( $queried_term );
+			$object_id = $queried_term->term_id;
 		} else if ( 'term' === $current_screen->base && isset( $current_screen->taxonomy )
-				&& in_array( $current_screen->taxonomy, Fusion()->get_content_taxonomies() )
+				&& in_array( $current_screen->taxonomy, Packaging_Preview::$taxonomies )
 				&& ! empty( $_GET['term_id'] ) ) {
 			$queried_term = get_term( absint( $_GET['term_id'] ), $current_screen->taxonomy );
 			if ( ! $queried_term ) {
 				return;
 			}
 			$context = 'term';
-			$obj = Term::get_by_term( $queried_term );
+			$object_id = $queried_term->term_id;
 		} else if ( in_array( $current_screen->base, array( 'post', 'post-new' ) )
-				&& in_array( $current_screen->post_type, Fusion()->get_content_post_types() ) ) {
+				&& in_array( $current_screen->post_type, Packaging_Preview::$post_types ) ) {
 			$context = 'post';
-			$obj = Post::get_by_post_id( get_the_ID() );
+			$object_id = get_the_ID();
 		}
 
-		if ( empty( $obj ) ) {
-			return;
-		}
-
-		wp_enqueue_script( 'seo-preview', get_template_directory_uri() . '/assets/js/build/seo-preview.js',
+		wp_enqueue_script( 'seo-preview', plugin_dir_url( dirname( __FILE__ ) ) . '/assets/js/build/seo-preview.js',
 			array( 'jquery', 'backbone', 'media-views', 'utils' ), $this->ver, true
 		);
 
-		if ( $obj instanceof Post ) {
-			$twitter_username = Distribution_Metadata::get_twitter_username_via( $obj );
-		}
-		if ( empty( $twitter_username ) ) {
-			$twitter_username = Config::get( 'TWITTER_USERNAME' );
-		}
+		wp_enqueue_style( 'seo-preview', plugin_dir_url( dirname( __FILE__ ) ) . '/assets/css/seo-preview.css' );
 
-		$facebook_share_text = $obj->get_facebook_share_text_for_promotion();
+		//if ( $obj instanceof Post ) {
+			//$twitter_username = Distribution_Metadata::get_twitter_username_via( $obj );
+		//}
+		//if ( empty( $twitter_username ) ) {
+			//$twitter_username = Config::get( 'TWITTER_USERNAME' );
+		//}
+
+		$facebook_share_text = Packaging_Preview\get_facebook_share_text_for_promotion( $object_id );
 		$facebook_share_text = ! empty( $facebook_share_text ) ? array_shift( $facebook_share_text ) : '';
 
 		$model = array(
-			'title'                       => $obj->get_seo_title(),
-			'url'                         => $obj->get_permalink(),
-			'shortlink'                   => $obj->get_share_link(),
-			'desc'                        => $obj->get_seo_description(),
-			'image'                       => $obj->get_featured_image_url( 'full' ),
-			'twitter_card_title'          => $obj->get_twitter_card_tag( 'title' ),
-			'twitter_card_desc'           => Utils::decode_html_entities($obj->get_twitter_card_tag( 'description' )),
-			'twitter_card_image'          => $obj->get_twitter_card_tag( 'image' ),
-			'twitter_share_text'          => $obj->get_twitter_share_text(),
+			'title'                       => Packaging_Preview\get_seo_title( $object_id ),
+			'url'                         => get_permalink( $object_id ),
+			'shortlink'                   => 'bit.ly' , //Packaging_Preview\get_share_link( $object_id ),
+			'desc'                        => Packaging_Preview\get_seo_description( $object_id ),
+			'image'                       => 'http://placekitten.org/200/300', //Packaging_Preview\get_featured_image_url( $object_id, 'full' ),
+			'twitter_card_title'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'title' ),
+			'twitter_card_desc'           => Packaging_Preview\decode_html_entities(Packaging_Preview\get_twitter_card_tag( $object_id, 'description' )),
+			'twitter_card_image'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'image' ),
+			'twitter_share_text'          => Packaging_Preview\get_twitter_share_text( $object_id ),
 			'twitter_site_name'           => Distribution_Metadata::get_instance()->get_facebook_open_graph_meta_tags()['og:site_name'],
 			'twitter_user_name'           => '@' . $twitter_username,
 			'twitter_char_limit'          => FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH,
 			'twitter_avatar'              => get_template_directory_uri() . '/assets/images/twitter-avatar.png',
 			'twitter_avatar_default'      => get_template_directory_uri() . '/assets/images/twitter-avatar-default.png',
 			'facebook_share_text'         => $facebook_share_text,
-			'open_graph_title'            => $obj->get_facebook_open_graph_tag( 'title' ),
-			'open_graph_desc'             => Utils::decode_html_entities($obj->get_facebook_open_graph_tag( 'description' )),
-			'open_graph_image'            => $obj->get_facebook_open_graph_tag( 'image' )[0],
+			'open_graph_title'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'title' ),
+			'open_graph_desc'             => Packaging_Preview\decode_html_entities(Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'description' )),
+			'open_graph_image'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'image' )[0],
 			'open_graph_site_name'        => Distribution_Metadata::get_instance()->get_facebook_open_graph_meta_tags()['og:site_name'],
-			'seo_title'                   => $obj->get_seo_title(),
-			'seo_desc'                    => Utils::decode_html_entities($obj->get_seo_description()),
+			'seo_title'                   => Packaging_Preview\get_seo_title( $object_id ),
+			'seo_desc'                    => Packaging_Preview\decode_html_entities(Packaging_Preview\get_seo_description( $object_id )),
 		);
 
 		/**
@@ -133,10 +127,10 @@ class SEO_Preview {
 	}
 
 	public function action_admin_footer() {
-		echo Fusion()->get_template_part( 'admin/seo-preview/main' );
-		echo Fusion()->get_template_part( 'admin/seo-preview/google' );
-		echo Fusion()->get_template_part( 'admin/seo-preview/twitter' );
-		echo Fusion()->get_template_part( 'admin/seo-preview/facebook' );
+		require_once dirname( dirname( __FILE__ ) ) . '/templates/main.php';
+		require_once dirname( dirname( __FILE__ ) ) . '/templates/google.php';
+		require_once dirname( dirname( __FILE__ ) ) . '/templates/twitter.php';
+		require_once dirname( dirname( __FILE__ ) ) . '/templates/facebook.php';
 	}
 
 	public function ajax_callback_image_src() {

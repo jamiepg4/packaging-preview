@@ -99,7 +99,7 @@ module.exports = function( grunt ) {
 			},
 			dist: {
 				files : {
-					'assets/js/build/seo-preview.js' : ['assets/js/src/admin/seo-preview/**/*.js', 'assets/js/src/admin-seo-preview.js'],
+					'assets/js/build/seo-preview.js' : ['assets/js/src/seo-preview.js'],
 				},
 				options: {
 					transform: ['browserify-shim']

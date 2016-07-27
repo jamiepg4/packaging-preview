@@ -2,6 +2,8 @@
 
 namespace Packaging_Preview;
 
+use Packaging_Preview;
+
 class Distribution_Fields {
 
 	private static $instance;
@@ -36,10 +38,11 @@ class Distribution_Fields {
 	 * Do whatever needed after post types have been registered
 	 */
 	public function action_init() {
-		foreach ( $this->post_types as $post_type ) {
+		error_log( 'initing packaging fields' );
+		foreach ( Packaging_Preview::$post_types as $post_type ) {
 			add_action( "fm_post_{$post_type}", array( $this, 'action_fm_post_content_post_types' ) );
 		}
-		foreach ( $this->taxonomies as $taxonomy ) {
+		foreach ( Packaging_Preview::$taxonomies as $taxonomy ) {
 			// These fields are lower priority on term pages
 			add_action( "fm_term_{$taxonomy}", array( $this, 'action_fm_term_content_taxonomies' ), 20 );
 		}
@@ -331,7 +334,7 @@ class Distribution_Fields {
 		}
 
 		wp_enqueue_script( 'fusion-distribution-fields',
-			get_template_directory_uri() . '/assets/js/src/admin-media-attached.js',
+			plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/src/admin-media-attached.js',
 			array( 'media-editor', 'media-views' )
 		);
 

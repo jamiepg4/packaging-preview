@@ -2,16 +2,6 @@
 
 namespace Packaging_Preview;
 
-//use Fusion\Config;
-//use Fusion\Objects\Attachment;
-//use Fusion\Objects\Author;
-//use Fusion\Objects\Gallery;
-//use Fusion\Objects\Post;
-//use Fusion\Objects\Page;
-//use Fusion\Objects\Show;
-//use Fusion\Objects\Term;
-//use Fusion\Objects\Video;
-
 class Distribution_Metadata {
 
 	private static $instance;
@@ -318,6 +308,7 @@ class Distribution_Metadata {
 	 * @return array Array of meta name to content value
 	 */
 	public function get_facebook_open_graph_meta_tags( $queried_obj = false, $shared_element = false ) {
+		global $wp;
 
 		// Defaults
 		$tags = array(
@@ -325,7 +316,7 @@ class Distribution_Metadata {
 			'og:type'        => 'website',
 			'og:title'       => get_bloginfo( 'name' ),
 			'og:description' => $this->get_current_meta_description( $queried_obj ),
-			'og:url'         => home_url( Fusion()->get_request_uri() ),
+			'og:url'         => home_url( $wp->request ),
 			'og:image'       => get_template_directory_uri() . '/assets/images/fusion_logo.png',
 		);
 

@@ -16,16 +16,29 @@ class Packaging_Preview {
 
 	private static $instance;
 
+	public static $post_types;
+	public static $taxonomies;
+
 	public static function get_instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Packaging_Preview;
 
-			spl_autoload_register( array( $this, 'spl_autoload' ) );
-            self::$instance->load();
-			//self::$instance->setup_actions();
-			//self::$instance->setup_filters();
+			self::$instance->load();
 		}
 		return self::$instance;
+	}
+
+	private function load() {
+		spl_autoload_register( array( $this, 'spl_autoload' ) );
+
+		static::$post_types = apply_filters( 'packaging_preview_post_types', array( 'post' ) );
+		static::$taxonomies = apply_filters( 'packaging_preview_taxonomies', array( 'category', 'post_tag' ) );
+
+		require_once 'inc/distribution-meta-functions.php';
+
+		$this->distribution_fields = Distribution_Fields::get_instance();
+		$this->distribution_metadata = Distribution_Metadata::get_instance();
+		$this->seo_preview = SEO_Preview::get_instance( $this->post_types, $this->taxonomies );
 	}
 
 	/**
@@ -58,13 +71,18 @@ class Packaging_Preview {
 		}
 	}
 
-    private function load() {
-        $this->distribution_fields = Distribution_Fields::get_instance();
-        $this->distribution_metadats = Distribution_Metadata::get_instance();
-        $this->seo_preview = SEO_Preview::get_instance();
-    }
-
-
 }
 
 Packaging_Preview::get_instance();
+
+// THIS SHOULD GO IN THE THEME... just here for testing
+add_filter( 'plugins_url', function( $url = '', $path = '', $plugin = '' ){
+	if ( empty( $plugin ) ) {
+		return $url;
+	}
+	if  ( false !== strpos( $plugin, 'srv/www/theroot-local/go-deploy-repo/plugins/') ) {
+		$url_override = str_replace( 'srv/www/theroot-local/go-deploy-repo/', 'wp-content/', dirname( $plugin ) );
+		$url = trailingslashit( $url_override ) . $path;
+	}
+	return $url;
+}, 9, 3 );
