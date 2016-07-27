@@ -29,9 +29,21 @@ class Packaging_Preview {
 	}
 
 	private function load() {
+
 		spl_autoload_register( array( $this, 'spl_autoload' ) );
 
+		/*
+		 * Filter the post types Packaging Preview is available for
+		 *
+		 * @param array Array of post types
+		 */
 		static::$post_types = apply_filters( 'packaging_preview_post_types', array( 'post' ) );
+
+		/*
+		 * Filter the taxonomies Packaging Preview is available for
+		 *
+		 * @param array Array of taxonomies
+		 */
 		static::$taxonomies = apply_filters( 'packaging_preview_taxonomies', array( 'category', 'post_tag' ) );
 
 		require_once 'inc/utils-functions.php';
