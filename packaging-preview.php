@@ -70,19 +70,7 @@ class Packaging_Preview {
 			require( $file );
 		}
 	}
-
 }
 
 Packaging_Preview::get_instance();
 
-// THIS SHOULD GO IN THE THEME... just here for testing
-add_filter( 'plugins_url', function( $url = '', $path = '', $plugin = '' ){
-	if ( empty( $plugin ) ) {
-		return $url;
-	}
-	if  ( false !== strpos( $plugin, 'srv/www/theroot-local/go-deploy-repo/plugins/') ) {
-		$url_override = str_replace( 'srv/www/theroot-local/go-deploy-repo/', 'wp-content/', dirname( $plugin ) );
-		$url = trailingslashit( $url_override ) . $path;
-	}
-	return $url;
-}, 9, 3 );
