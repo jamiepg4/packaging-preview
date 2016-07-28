@@ -2,6 +2,8 @@
 
 namespace Packaging_Preview;
 
+use Packaging_Preview;
+
 class Distribution_Metadata {
 
 	private static $instance;
@@ -10,7 +12,7 @@ class Distribution_Metadata {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Distribution_Metadata;
 			self::$instance->setup_actions();
-			self::$instance->setup_filters();
+		//self::$instance->setup_filters();
 		}
 		return self::$instance;
 	}
@@ -20,22 +22,15 @@ class Distribution_Metadata {
 	 */
 	private function setup_actions() {
 		add_action( 'wp_head', array( $this, 'action_wp_head_social_meta_tags' ) );
-		add_action( 'wp_head', array( $this, 'action_wp_head_feed_meta_tags' ) );
-		add_action( 'wp_head', array( $this, 'action_wp_head_rel_canonical' ), 9 );
-		add_action( 'wp_head', array( $this, 'action_wp_head_no_index_no_follow' ) );
-		add_action( 'query_vars', array( $this, 'action_query_vars_add_element' ) );
+		//add_action( 'wp_head', array( $this, 'action_wp_head_feed_meta_tags' ) );
+		//add_action( 'wp_head', array( $this, 'action_wp_head_rel_canonical' ), 9 );
+		//add_action( 'wp_head', array( $this, 'action_wp_head_no_index_no_follow' ) );
+		//add_action( 'query_vars', array( $this, 'action_query_vars_add_element' ) );
 	}
 
-	/**
-	 * Set up distribution metadata filters
-	 */
-	private function setup_filters() {
-		// `wp_title` filter; used for WP up through 4.3.1. Can be removed once VIP is no longer running this version
-		add_filter( 'wp_title', array( $this, 'filter_wp_title' ) );
-
-		// These filters are used for WP >= 4.4. Used for local and staging environments and in testing for now.
-		add_filter( 'document_title_separator', array( $this, 'filter_document_title_separator' ) );
-		add_filter( 'document_title_parts',     array( $this, 'filter_document_title_parts'     ) );
+	private function get_request_uri() {
+		global $wp;
+		return home_url( $wp->request );
 	}
 
 	/**
@@ -44,43 +39,43 @@ class Distribution_Metadata {
 	public function action_wp_head_social_meta_tags() {
 		$queried_obj = $shared_element = false;
 
-		if ( is_single() || is_page() || is_singular() ) {
-			$queried_obj = $this->get_current_post();
-			$shared_element = $this->get_current_object();
-		} else if ( is_tax( Fusion()->get_content_taxonomies() ) ) {
-			$queried_obj = $this->get_current_term();
+		if ( is_single() || is_page() || is_singular( Packaging_Preview::$post_types ) ) {
+			$context = 'post';
+			$object_id = get_queried_object_id();
+		} else if ( is_tax( Packaging_Preview::$taxonomies ) ) {
+			$context = 'term';
+			$object_id = get_queried_object_id();
 		}
 
-		echo $this->get_social_meta_tags( $queried_obj, $shared_element );
-		echo Fusion()->get_template_part( 'header/favicons' );
+		echo $this->get_social_meta_tags( $object_id, $context );
 	}
 
 	/**
 	 * Get all the social meta tags for a request
 	 *
-	 * @param Post|Term|null $queried_obj
-	 * @param Post|null $shared_element Set from element share links
+	 * @param int Queried object ID
+	 * @param string "post"|"term"
 	 * @return string HTML representing all social distribution meta tags
 	 */
-	public function get_social_meta_tags( $queried_obj = null, $shared_element = null ) {
+	public function get_social_meta_tags( $object_id = null, $context = null ) {
 
 		$meta_tags = '';
 
-		$meta_tags .= '<meta name="description" content="' . esc_attr( $this->get_current_meta_description( $queried_obj ) ) . '" />' . PHP_EOL;
+		$meta_tags .= '<meta name="description" content="' . esc_attr( $this->get_current_meta_description( $object_id ) ) . '" />' . PHP_EOL;
 
-		if ( $queried_obj && $queried_obj instanceof Post
-				&& in_array( $queried_obj->get_type(), Fusion()->get_content_post_types() )) {
-			$meta_tags .= '<meta name="news_keywords" content="' . esc_attr( $queried_obj->get_seo_keywords() ) . '" />' . PHP_EOL;
+		if ( $object_id && 'post' === $context
+				&& in_array( get_post_type( $object_id ), Packaging_Preview::$post_types ) ) {
+			$meta_tags .= '<meta name="news_keywords" content="' . esc_attr( get_seo_keywords( $object_id ) ) . '" />' . PHP_EOL;
 
-			if ( $queried_obj->is_google_standout_enabled() ) {
-				$meta_tags .= '<link rel="standout" href="' . esc_attr( $queried_obj->get_permalink() ) . '" />' . PHP_EOL;
+			if ( is_google_standout_enabled( $object_id ) ) {
+				$meta_tags .= '<link rel="standout" href="' . esc_attr( get_permalink( $object_id ) ) . '" />' . PHP_EOL;
 			}
 		}
 
-		$facebook_tags = $this->get_facebook_open_graph_meta_tags( $queried_obj, $shared_element );
-		$twitter_tags = $this->get_twitter_card_meta_tags( $queried_obj, $shared_element );
+		$facebook_tags = $this->get_facebook_open_graph_meta_tags( $object_id, $context );
+		$twitter_tags = $this->get_twitter_card_meta_tags( $object_id, $context );
 
-		$tags = array_merge( array( 'fb:app_id' => Config::get( 'FACEBOOK_APPID' ) ), $facebook_tags, $twitter_tags );
+		$tags = array_merge( /* array( 'fb:app_id' => Config::get( 'FACEBOOK_APPID' ) ), */ $facebook_tags, $twitter_tags );
 
 		foreach ( array_filter( $tags ) as $name => $value ) {
 
@@ -280,22 +275,18 @@ class Distribution_Metadata {
 	/**
 	 * Get meta description for current page
 	 *
-	 * @param Post|Term|null Currently-queried object.
 	 * @return string
 	 */
-	public function get_current_meta_description( $obj = null )  {
+	public function get_current_meta_description( $object_id = null, $context = null )  {
 
 		$meta_description = get_bloginfo( 'description' );
-		if ( $obj instanceof Post || $obj instanceof Term ) {
-			$meta_description = $obj->get_seo_description();
+
+		if ( $object_id && 'post' === $context ) {
+			$meta_description = get_seo_description( $object_id );
+		} else if ( $object_id && 'term' === $context ) {
+			$meta_description = get_seo_description( $object_id );
 		} else if ( is_author() && get_queried_object()->description ) {
 			$meta_description = get_queried_object()->description;
-		} else if ( 'schedule' === get_query_var( 'fusion-static-page' ) ) {
-			$meta_description = 'Fusion is a news, pop culture, and satire TV and digital network. We have a complete 4 hours of live shows everyday that engages and champions a young, diverse, and inclusive America. The shows consist of a unique mix of smart and irreverent original reporting, lifestyle, and comedic content. Some of our favorite hosts include: Alicia Menendez, Jorge Ramos, Nando Villa, Simon Carr, Mariana Atencio, and Pedro Andrade.';
-		}  else if ( 'standout' === get_query_var( 'fusion-static-page' ) ) {
-			$meta_description = 'Fusion is a news, pop culture, and satire TV and digital network. See some of our standout content.';
-		} else if ( 'authors' === get_query_var( 'fusion-static-page' ) ) {
-			$meta_description = 'Fusion is a news, pop culture, and satire TV and digital network.';
 		}
 		return $meta_description;
 	}
@@ -303,11 +294,9 @@ class Distribution_Metadata {
 	/**
 	 * Get the Facebook Open Graph meta tags for this page
 	 *
-	 * @param Post|Term|null $queried_obj
-	 * @param Post|null $shared_element Set from element share links
 	 * @return array Array of meta name to content value
 	 */
-	public function get_facebook_open_graph_meta_tags( $queried_obj = false, $shared_element = false ) {
+	public function get_facebook_open_graph_meta_tags( $object_id = false, $context = false ) {
 		global $wp;
 
 		// Defaults
@@ -315,67 +304,41 @@ class Distribution_Metadata {
 			'og:site_name'   => get_bloginfo( 'name' ),
 			'og:type'        => 'website',
 			'og:title'       => get_bloginfo( 'name' ),
-			'og:description' => $this->get_current_meta_description( $queried_obj ),
+			'og:description' => $this->get_current_meta_description( $object_id ),
 			'og:url'         => home_url( $wp->request ),
 			'og:image'       => get_template_directory_uri() . '/assets/images/fusion_logo.png',
 		);
 
 		// Single posts
-		if ( $queried_obj && $queried_obj instanceof Post ) {
+		if ( $object_id && 'post' === $context ) {
 
-			$tags['og:title'] = $queried_obj->get_facebook_open_graph_tag( 'title' );
+			$tags['og:title'] = get_facebook_open_graph_tag( $object_id, 'title' );
 			$tags['og:type'] = 'article';
-			$tags['og:description'] = $queried_obj->get_facebook_open_graph_tag( 'description' );
+			$tags['og:description'] = get_facebook_open_graph_tag( $object_id, 'description' );
+			$tags['og:url'] = get_facebook_open_graph_tag( $object_id, 'url' );
 
-			// Override some share values if an element on the page is being shared
-			if ( $shared_element && $shared_element->get_id() !== $queried_obj->get_id() ) {
-				$tags['og:url'] = add_query_arg( 'element', $shared_element->get_id(),
-					$queried_obj->get_facebook_open_graph_tag( 'url' ) );
-			} else {
-				$tags['og:url'] = $queried_obj->get_facebook_open_graph_tag( 'url' );
-				$shared_element = $queried_obj;
-			}
-
-			if ( $image = $shared_element->get_facebook_open_graph_tag( 'image' ) ) {
+			if ( $image = get_facebook_open_graph_tag( $object_id, 'image' ) ) {
 				$tags['og:image'] = $image[0];
 				$tags['og:image:width'] = $image[1];
 				$tags['og:image:height'] = $image[2];
 			}
 
-			if ( $article_author = $shared_element->get_authors_facebook_urls() ) {
-				$tags['article:author'] = $article_author;
-			}
+			//if ( $article_author = get_authors_facebook_urls( $object_id ) ) {
+				//$tags['article:author'] = $article_author;
+			//}
 		}
 
 		// Term pages
-		if ( $queried_obj && $queried_obj instanceof Term ) {
+		if ( $object_id && 'term' === $context ) {
 
-			$tags['og:title'] = $queried_obj->get_facebook_open_graph_tag( 'title' );
-			$og_description = $queried_obj->get_facebook_open_graph_tag( 'description' );
-			if ( ! empty( $og_description ) ) {
-				$tags['og:description'] = $og_description;
-			}
-			$tags['og:url'] = $queried_obj->get_facebook_open_graph_tag( 'url' );
-			if ( $image = $queried_obj->get_facebook_open_graph_tag( 'image' ) ) {
+			$tags['og:title'] = get_facebook_open_graph_tag( $object_id, 'title' );
+			$tags['og:description'] = get_facebook_open_graph_tag( $object_id, 'description' );
+			$tags['og:url'] = get_facebook_open_graph_tag( $object_id, 'url' );
+
+			if ( $image = get_facebook_open_graph_tag( $object_id, 'image' ) ) {
 				$tags['og:image'] = $image[0];
 				$tags['og:image:width'] = $image[1];
 				$tags['og:image:height'] = $image[2];
-			}
-		}
-
-		if ( 'newsletter-subscribe' === get_query_var( 'fusion-static-page' ) ) {
-			$overrides = get_option( 'fusion_newsletter_fields' );
-			if ( ! empty( $overrides['facebook']['title'] ) ) {
-				$tags['og:title'] = $overrides['facebook']['title'];
-			}
-			if ( ! empty( $overrides['facebook']['description'] ) ) {
-				$tags['og:description'] = $overrides['facebook']['description'];
-			}
-			if ( ! empty( $overrides['facebook']['image'] ) ) {
-				$attachment = Attachment::get_by_post_id( (int) $overrides['facebook']['image'] );
-				if ( $attachment && 'attachment' == $attachment->get_type() ) {
-					$tags['og:image'] = $attachment->get_url( 'facebook-open-graph' );
-				}
 			}
 		}
 
@@ -390,14 +353,15 @@ class Distribution_Metadata {
 	 * @return array Array of meta name to content value
 	 */
 	public function get_twitter_card_meta_tags( $queried_obj = null, $shared_element = null ) {
+		global $wp;
 
 		// Defaults
 		$tags = array(
 			'twitter:card'        => 'summary',
-			'twitter:site'        => '@' . Config::get( 'TWITTER_USERNAME' ),
+			'twitter:site'        => '@Fusion',
 			'twitter:title'       => get_bloginfo( 'name' ),
 			'twitter:description' => $this->get_current_meta_description( $queried_obj ),
-			'twitter:url'         => esc_url( home_url( Fusion()->get_request_uri() ) ),
+			'twitter:url'         => esc_url( $this->get_request_uri() ),
 			);
 
 		// Single posts
@@ -447,14 +411,14 @@ class Distribution_Metadata {
 	 *
 	 * @return Fusion\Objects\Post
 	 */
-	public function get_current_post() {
+	//public function get_current_post() {
 
-		if ( ! is_singular() ) {
-			return null;
-		}
+		//if ( ! is_singular() ) {
+			//return null;
+		//}
 
-		return Post::get_by_post_id( get_queried_object_id() );
-	}
+		//return Post::get_by_post_id( get_queried_object_id() );
+	//}
 
 
 	/**
@@ -462,13 +426,13 @@ class Distribution_Metadata {
 	 *
 	 * @return Fusion\Objects\Term
 	 */
-	public function get_current_term() {
-		if ( ! is_tax( Fusion()->get_taxonomies() ) ) {
-			return;
-		}
+	//public function get_current_term() {
+		//if ( ! is_tax( Fusion()->get_taxonomies() ) ) {
+			//return;
+		//}
 
-		return Term::get_by_term( get_queried_object() );
-	}
+		//return Term::get_by_term( get_queried_object() );
+	//}
 
 	/**
 	 * Get the currently active post element (attachment, etc.).

@@ -53,15 +53,6 @@ function set_google_standout_status( $post_id,  $status ) {
 }
 
 /**
- * Get the standout status for the post
- *
- * @param string
- */
-function is_google_standout_enabled( ) {
-	return get_post_field( $post_id, 'fusion_distribution', 'seo', 'standout' );
-}
-
-/**
  * Get the SEO title for the post
  *
  * @return string
@@ -109,6 +100,14 @@ function set_seo_description( $post_id, $description ) {
 	set_post_field( $post_id, 'fusion_distribution', 'seo', 'description', $description );
 }
 
+/**
+ * Get the standout status for the post
+ *
+ * @param string
+ */
+function is_google_standout_enabled( $post_id ) {
+	return get_post_field( $post_id, 'fusion_distribution', 'seo', 'standout' );
+}
 
 /**
  * Get a given Facebook open graph tag for this post
