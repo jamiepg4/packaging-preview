@@ -13,7 +13,7 @@ function get_share_link( $post_id ) {
 
 function get_featured_image_url( $post_id ) {
 	if ( $featured_image = get_post_thumbnail_id( $post_id ) ) {
-		$attachment_image = wp_get_attachment_image( absint( $featured_image ) );
+		$attachment_image = wp_get_attachment_image_src( absint( $featured_image ) );
 
 		return $attachment_image[0];
 	}
@@ -25,7 +25,18 @@ function get_featured_image_url( $post_id ) {
  * @return string
  */
 function get_seo_keywords( $post_id ) {
-	return get_post_field( $post_id, 'fusion_distribution', 'seo', 'keywords' );
+	$seo_keywords = get_post_field( $post_id, 'fusion_distribution', 'seo', 'keywords' );
+
+	if ( empty( $seo_keywords ) ) {
+		$terms = array();
+		foreach ( Packaging_Preview::$taxonomies as $taxonomy ) {
+			$terms = $terms + wp_list_pluck( get_the_terms( $post_id, 'post_tag' ), 'name' );
+		}
+
+		$seo_keywords = implode( ', ', $terms );
+	}
+
+	return $seo_keywords;
 }
 
 /**
@@ -57,7 +68,12 @@ function is_google_standout_enabled( ) {
  */
 function get_seo_title( $post_id ) {
 	$seo_title = get_post_field( $post_id, 'fusion_distribution', 'seo', 'title' );
-	return strip_tags( $seo_title );
+
+	if ( ! $seo_title ) {
+		$seo_title = get_the_title( $post_id );
+	}
+
+	return decode_html_entities( $seo_title );
 }
 
 /**
@@ -65,7 +81,7 @@ function get_seo_title( $post_id ) {
  *
  * @param string
  */
-function set_seo_title( $title ) {
+function set_seo_title( $post_id, $title ) {
 	return set_post_field( $post_id, 'fusion_distribution', 'seo', 'title', $title );
 }
 
@@ -76,7 +92,12 @@ function set_seo_title( $title ) {
  */
 function get_seo_description( $post_id ) {
 	$seo_description = get_post_field( $post_id, 'fusion_distribution', 'seo', 'description' );
-	return strip_tags( $seo_description );
+
+	if ( empty( $seo_description ) ) {
+		$seo_description = get_first_sentence_from_post_content( $post_id );
+	}
+
+	return decode_html_entities( $seo_description );
 }
 
 /**
@@ -84,7 +105,7 @@ function get_seo_description( $post_id ) {
  *
  * @param string
  */
-function set_seo_description( $description ) {
+function set_seo_description( $post_id, $description ) {
 	set_post_field( $post_id, 'fusion_distribution', 'seo', 'description', $description );
 }
 
@@ -95,27 +116,33 @@ function set_seo_description( $description ) {
  * @param string $tag_name
  * @return string
  */
-function get_facebook_open_graph_tag( $tag_name ) {
+function get_facebook_open_graph_tag( $post_id, $tag_name ) {
 
 	switch ( $tag_name ) {
 
 		case 'title':
 			$val = get_post_field( $post_id, 'fusion_distribution', 'facebook', 'title' );
+			if ( empty( $val ) ) {
+				$val = get_seo_title( $post_id );
+			}
 			break;
 
 		case 'description':
 			$val = get_post_field( $post_id, 'fusion_distribution', 'facebook', 'description' );
+			if ( empty( $val ) ) {
+				$val = get_seo_description( $post_id );
+			}
 			break;
 
 		case 'image':
 			$image_id = get_post_field( $post_id, 'fusion_distribution', 'facebook', 'image' );
-			$val = array();
+
+			if ( empty( $image_id ) ) {
+				$image_id = get_post_thumbnail_id( $post_id );
+			}
 
 			if ( intval( $image_id ) > 0 ) {
-				$image = \Fusion\Objects\Post::get_by_post_id( $image_id );
-				if ( $image instanceof \Fusion\Objects\Attachment ) {
-					return $image->get_src( 'facebook-open-graph', array( 'width' => 1200, 'height' => 630 ) );
-				}
+				$val = wp_get_attachment_image_src( 'facebook-open-graph', array( 'width' => 1200, 'height' => 630 ) )[0];
 			}
 			break;
 
@@ -124,7 +151,7 @@ function get_facebook_open_graph_tag( $tag_name ) {
 	}
 
 	if ( in_array( $tag_name, array( 'title', 'description' ) ) ) {
-		$val = strip_tags( $val );
+		$val = decode_html_entities( $val );
 	}
 	return $val;
 }
@@ -135,7 +162,7 @@ function get_facebook_open_graph_tag( $tag_name ) {
  * @param string $tag_name
  * @param mixed $value
  */
-function set_facebook_open_graph_tag( $tag_name, $value ) {
+function set_facebook_open_graph_tag( $post_id, $tag_name, $value ) {
 	switch ( $tag_name ) {
 		case 'title':
 			set_post_field( $post_id, 'fusion_distribution', 'facebook', 'title', $value );
@@ -164,12 +191,19 @@ function get_facebook_share_text_for_promotion( $post_id ) {
  * @param string $tag_name
  * @return string
  */
-function get_twitter_card_tag( $tag_name ) {
+function get_twitter_card_tag( $post_id, $tag_name ) {
 
 	switch ( $tag_name ) {
 
 		case 'title':
-			$title = strip_tags( get_post_field( $post_id, 'fusion_distribution', 'twitter', 'title' ) );
+			$title = get_post_field( $post_id, 'fusion_distribution', 'twitter', 'title' );
+
+			if ( empty( $title ) ) {
+				$title = get_facebook_open_graph_tag( $post_id, 'title' );
+			}
+
+			$title = decode_html_entities( $title );
+
 			// Limited to 70 characters or less
 			if ( strlen( $title ) > 70 ) {
 				$parts = wordwrap( $title, 70, PHP_EOL );
@@ -181,7 +215,14 @@ function get_twitter_card_tag( $tag_name ) {
 			break;
 
 		case 'description':
-			$description = strip_tags( get_post_field( $post_id, 'fusion_distribution', 'twitter', 'description' ) );
+			$description = get_post_field( $post_id, 'fusion_distribution', 'twitter', 'description' );
+
+			if ( empty( $description ) ) {
+				$description = get_facebook_open_graph_tag( $post_id, 'description' );
+			}
+
+			$description = decode_html_entities( $description );
+
 			if ( strlen( $description ) > 200 ) {
 				$parts = wordwrap( $description, 200, PHP_EOL );
 				$parts = explode( PHP_EOL, $parts );
@@ -197,14 +238,12 @@ function get_twitter_card_tag( $tag_name ) {
 
 		case 'image':
 			$val = '';
-			$image = get_twitter_card_image( $post_id );
-			if ( $image ) {
-				$val = $image->get_url( 'twitter-card' );
+			$image_id = get_twitter_card_image( $post_id );
+
+			if ( $image_id ) {
+				$val = wp_get_attachment_image_src( $image_id, 'twitter-card' );
 			} else {
-				$image = get_featured_image( $post_id );
-				if ( $image && 'attachment' == $image->get_type() ) {
-					$val = $image->get_url( 'twitter-card' );
-				}
+				$val = get_facebook_open_graph_tag( $post_id, 'image' );
 			}
 			break;
 
@@ -214,7 +253,7 @@ function get_twitter_card_tag( $tag_name ) {
 	}
 
 	if ( in_array( $tag_name, array( 'title', 'description' ) ) ) {
-		$val = strip_tags( $val );
+		$val = decode_html_entities( $val );
 	}
 	return $val;
 }
@@ -225,7 +264,7 @@ function get_twitter_card_tag( $tag_name ) {
  * @param string $tag_name
  * @param mixed $value
  */
-function set_twitter_card_tag( $tag_name, $value ) {
+function set_twitter_card_tag( $post_id, $tag_name, $value ) {
 	switch ( $tag_name ) {
 		case 'title':
 			set_post_field( $post_id, 'fusion_distribution', 'twitter', 'title', $value );
@@ -256,7 +295,7 @@ function get_twitter_share_text( $post_id ) {
 		$share_text = mb_substr( $share_text, 0, FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH );
 	}
 
-	return $share_text;
+	return decode_html_entities( $share_text );
 }
 
 /**
@@ -264,7 +303,7 @@ function get_twitter_share_text( $post_id ) {
  *
  * @param string
  */
-function set_twitter_share_text( $share_text ) {
+function set_twitter_share_text( $post_id, $share_text ) {
 	return set_post_field( $post_id, 'fusion_distribution', 'twitter', 'share_text', $share_text );
 }
 
@@ -276,8 +315,8 @@ function set_twitter_share_text( $share_text ) {
 function get_twitter_card_image( $post_id ) {
 	$image_id = get_post_field( $post_id, 'fusion_distribution', 'twitter', 'image' );
 
-	if ( $attachment_image = wp_get_attachment_image( absint( $image_id ) ) ) {
-		return $attachment_image;
+	if ( $attachment_image = wp_get_attachment_image_src( absint( $image_id ) ) ) {
+		return $attachment_image[0];
 	}
 
 	return false;
@@ -299,7 +338,7 @@ function get_twitter_share_text_for_promotion( $post_id ) {
  * @param string $field_name
  * @return string
  */
-function get_pinterest_share_field( $field_name ) {
+function get_pinterest_share_field( $post_id, $field_name ) {
 
 	switch ( $field_name ) {
 
@@ -357,27 +396,5 @@ function get_newsletter_distribution_image( $post_id ) {
 	}
 
 	return Attachment::get_by_post_id( $featured_image_id );
-}
-
-/**
- * Get the first sentence from the post
- *
- * Used as default description for Facebook or Pinterest sharing.
- *
- * @return string
- */
-function get_first_sentence_from_post_content( $post_id ) {
-
-	// Stolen from wp_trim_excerpt()
-	$text = strip_shortcodes( get_field( $post_id, 'post_content' ) );
-	$text = strip_tags( $text );
-
-	$sentences = preg_split( '#(?<=[.?!](\s|"))[\n\r\t\s]{0,}(?=[A-Z\b"])#',$text);
-
-	if ( is_array( $sentences ) ) {
-		return trim( Utils::decode_html_entities( wptexturize( $sentences[0] ) ) );
-	}
-
-	return '';
 }
 

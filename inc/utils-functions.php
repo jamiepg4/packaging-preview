@@ -77,11 +77,34 @@ function set_post_field( int $post_id, string $meta_key /*, $path... */, $value 
 }
 
 /**
+ * Get the first sentence from the post
+ *
+ * Used as default description for Facebook or Pinterest sharing.
+ *
+ * @return string
+ */
+function get_first_sentence_from_post_content( $post_id ) {
+
+	// Stolen from wp_trim_excerpt()
+	$post = get_post( $post_id );
+	$text = strip_shortcodes( $post->post_content );
+	$text = strip_tags( $text );
+
+	$sentences = preg_split( '#(?<=[.?!](\s|"))[\n\r\t\s]{0,}(?=[A-Z\b"])#',$text);
+
+	if ( is_array( $sentences ) ) {
+		return trim( decode_html_entities( wptexturize( $sentences[0] ) ) );
+	}
+
+	return '';
+}
+
+/**
  * Decode HTML entities in a string
  *
  * @param string
  * @return string
  */
 function decode_html_entities( $string ) {
-	return htmlspecialchars_decode( html_entity_decode( $string ), ENT_QUOTES );
+	return strip_tags( htmlspecialchars_decode( html_entity_decode( $string ), ENT_QUOTES ) );
 }

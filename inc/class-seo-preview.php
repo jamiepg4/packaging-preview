@@ -77,7 +77,7 @@ class SEO_Preview {
 			'desc'                        => Packaging_Preview\get_seo_description( $object_id ),
 			'image'                       => Packaging_Preview\get_featured_image_url( $object_id, 'full' ),
 			'twitter_card_title'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'title' ),
-			'twitter_card_desc'           => Packaging_Preview\decode_html_entities(Packaging_Preview\get_twitter_card_tag( $object_id, 'description' )),
+			'twitter_card_desc'           => Packaging_Preview\get_twitter_card_tag( $object_id, 'description' ),
 			'twitter_card_image'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'image' ),
 			'twitter_share_text'          => Packaging_Preview\get_twitter_share_text( $object_id ),
 			'twitter_site_name'           => Distribution_Metadata::get_instance()->get_facebook_open_graph_meta_tags()['og:site_name'],
@@ -87,11 +87,11 @@ class SEO_Preview {
 			'twitter_avatar_default'      => get_template_directory_uri() . '/assets/images/twitter-avatar-default.png',
 			'facebook_share_text'         => Packaging_Preview\get_facebook_share_text_for_promotion( $object_id ),
 			'open_graph_title'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'title' ),
-			'open_graph_desc'             => Packaging_Preview\decode_html_entities(Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'description' )),
-			'open_graph_image'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'image' )[0],
+			'open_graph_desc'             => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'description' ),
+			'open_graph_image'            => Packaging_Preview\get_facebook_open_graph_tag( $object_id, 'image' ),
 			'open_graph_site_name'        => Distribution_Metadata::get_instance()->get_facebook_open_graph_meta_tags()['og:site_name'],
 			'seo_title'                   => Packaging_Preview\get_seo_title( $object_id ),
-			'seo_desc'                    => Packaging_Preview\decode_html_entities(Packaging_Preview\get_seo_description( $object_id )),
+			'seo_desc'                    => Packaging_Preview\get_seo_description( $object_id ),
 		);
 
 		/**

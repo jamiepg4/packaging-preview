@@ -12,6 +12,8 @@ use Packaging_Preview\Distribution_Fields;
 use Packaging_Preview\Distribution_Metadata;
 use Packaging_Preview\SEO_Preview;
 
+define( 'FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH', 92 );
+
 class Packaging_Preview {
 
 	private static $instance;
