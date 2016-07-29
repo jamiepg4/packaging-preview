@@ -8,6 +8,7 @@ Version: 0.1.0
 License: GPL v3
 */
 
+use Packaging_Preview\Distribution_Settings;
 use Packaging_Preview\Distribution_Fields;
 use Packaging_Preview\Distribution_Metadata;
 use Packaging_Preview\SEO_Preview;
@@ -51,6 +52,7 @@ class Packaging_Preview {
 		require_once 'inc/utils-functions.php';
 		require_once 'inc/distribution-meta-functions.php';
 
+		$this->distribution_settings = Distribution_Settings::get_instance();
 		$this->distribution_fields = Distribution_Fields::get_instance();
 		$this->distribution_metadata = Distribution_Metadata::get_instance();
 		$this->seo_preview = SEO_Preview::get_instance( $this->post_types, $this->taxonomies );
