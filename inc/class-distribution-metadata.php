@@ -12,7 +12,6 @@ class Distribution_Metadata {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Distribution_Metadata;
 			self::$instance->setup_actions();
-		//self::$instance->setup_filters();
 		}
 		return self::$instance;
 	}
@@ -138,11 +137,18 @@ class Distribution_Metadata {
 			'og:title'       => get_bloginfo( 'name' ),
 			'og:description' => $this->get_current_meta_description( $object_id ),
 			'og:url'         => home_url( $wp->request ),
-			'og:image'       => get_template_directory_uri() . '/assets/images/fusion_logo.png',
+			'og:publisher'   => get_settings_field( 'packaging_preview', 'facebook', 'publisher' ),
+			'fb:app_id'      => get_settings_field( 'packaging_preview', 'facebook', 'app_id' ),
 		);
 
-		if ( $fb_app_id = get_settings_field( 'packaging_preview', 'facebook', 'app_id' ) ) {
-			$tags['fb:app_id'] = $fb_app_id;
+		if ( ( $fb_default_image = get_settings_field( 'packaging_preview', 'facebook', 'default_image' ) )
+				&& ( $attachment_src = wp_get_attachment_image_src( $fb_default_image, 'full' ) )
+				) {
+			$tags['og:image'] = $attachment_src[0];
+		}
+
+		if ( $fb_publisher = get_settings_field( 'packaging_preview', 'facebook', 'publisher' ) ) {
+			$tags['og:publisher'] = $fb_publisher;
 		}
 
 		// Single posts

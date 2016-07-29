@@ -41,23 +41,23 @@ class Distribution_Settings {
 							'children'=> array(
 								'profile' => new \Fieldmanager_Textfield(
 									esc_html__( 'Facebook publisher profile', 'fusion' ),
-										array(
-											'description' => __( 'URL to publisher Facebook page', 'fusion' ),
-										)
-									),
-								'property' => new \Fieldmanager_Textfield(
-									esc_html__( 'Facebook property ID', 'fusion' ),
-										array(
-										)
-									),
+									array(
+										'description' => __( 'URL to publisher Facebook page', 'fusion' ),
+									)
+								),
 								'app_id' => new \Fieldmanager_Textfield(
-									esc_html__( 'Facebook property ID', 'fusion' ),
-										array(
-										)
-									),
-								)
+									esc_html__( 'Facebook property (app ID)', 'fusion' ),
+									array(
+									)
+								),
+								'default_image' => new \Fieldmanager_Media(
+									esc_html__( 'Default image for Facebook shares', 'fusion' ),
+									array(
+									)
+								),
 							)
-						),
+						)
+					),
 					'twitter' => new \Fieldmanager_Group( 'Twitter',
 						array(
 							'children' => array(
@@ -67,7 +67,12 @@ class Distribution_Settings {
 											'description' => __( 'Username (without the @) for Twitter via links', 'fusion' ),
 										)
 									),
-								)
+								),
+								'logo' => new \Fieldmanager_Media(
+									esc_html__( 'Twitter profile logo (for preview)', 'fusion' ),
+									array(
+									)
+								),
 							)
 						)
 					)
