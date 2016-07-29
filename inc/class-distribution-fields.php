@@ -330,8 +330,6 @@ class Distribution_Fields {
 			return;
 		}
 
-		error_log( dirname( __FILE__ ) );
-
 		wp_enqueue_script( 'fusion-distribution-fields',
 			plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/src/admin-media-attached.js',
 			array( 'media-editor', 'media-views' )
