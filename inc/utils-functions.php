@@ -77,6 +77,43 @@ function set_post_field( int $post_id, string $meta_key /*, $path... */, $value 
 }
 
 /**
+ * Gets a value from a nested array settings field.
+ * Takes any number of arguments as a path, returns the option value at that page.
+ *
+ * @param string... First value is the option_name, subsequent values are nested array keys inside it.
+ * @return mixed Value of the (possible nested) option field
+ */
+function get_settings_field( string $meta_key /*, $path... */ ) {
+	$path = func_get_args();
+
+	$filter = implode( '_', $path );
+	$option_name = array_shift( $path );
+
+	if ( $field = get_option( $option_name ) ) {
+		while ( count( $path ) ) {
+			$path_part = array_shift( $path );
+			if ( ! array_key_exists( $path_part, $field ) ) {
+				return false;
+			}
+			$field = $field[ $path_part ];
+		}
+	}
+
+	/**
+	 * Filter the value specified for an settings option.
+	 *
+	 * Can be used to set defaults if an option is empty.
+	 *
+	 * The filter is the path arguments passed to the function, concatenated with underscores. If this
+	 * function was called to check the packaging_preview[facebook][app_id] field, the filter called here
+	 * would be `packaging_preview_facebook_app_id`.
+	 *
+	 * @param mixed field value returned
+	 */
+	return apply_filters( $filter, $field );
+}
+
+/**
  * Get the first sentence from the post
  *
  * Used as default description for Facebook or Pinterest sharing.

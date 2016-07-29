@@ -20,44 +20,60 @@ class Distribution_Settings {
 	 * Set up field actions
 	 */
 	private function setup_actions() {
-		fm_register_submenu_page( 'packaging-preview', 'options-general.php',
+		fm_register_submenu_page( 'packaging_preview', 'options-general.php',
 			esc_html__( 'Packaging Preview Settings', 'fusion' ), esc_html__( 'Packaging', 'fusion' ),
 			'manage_options'
 		);
-		add_action( 'fm_submenu_packaging-preview', array( $this, 'register_packaging_preview_settings' ) );
+		add_action( 'fm_submenu_packaging_preview', array( $this, 'register_packaging_preview_settings' ) );
 	}
 
 	/*
 	 * Register distribution settings page fields
 	 */
 	public function register_packaging_preview_settings() {
-		$distribution_settings_fields = new \Fieldmanager_Group( esc_html__( 'Packaging Preview Settings', 'fusion' ),
+		$packaging_preview_fields = new \Fieldmanager_Group(
 			array(
-				'name'     => 'fusion_distribution_settings',
-				'tabbed'   => false,
+				'name'     => 'packaging_preview',
+				'tabbed'   => true,
 				'children' => array(
-					'fb_publisher' => new \Fieldmanager_Textfield(
-						esc_html__( 'Facebook publisher profile', 'fusion' ),
-							array(
-								'description' => __( 'URL to publisher Facebook page', 'fusion' ),
+					'facebook' => new \Fieldmanager_Group( 'Facebook',
+						array(
+							'children'=> array(
+								'profile' => new \Fieldmanager_Textfield(
+									esc_html__( 'Facebook publisher profile', 'fusion' ),
+										array(
+											'description' => __( 'URL to publisher Facebook page', 'fusion' ),
+										)
+									),
+								'property' => new \Fieldmanager_Textfield(
+									esc_html__( 'Facebook property ID', 'fusion' ),
+										array(
+										)
+									),
+								'app_id' => new \Fieldmanager_Textfield(
+									esc_html__( 'Facebook property ID', 'fusion' ),
+										array(
+										)
+									),
+								)
 							)
 						),
-					'fb_property' => new \Fieldmanager_Textfield(
-						esc_html__( 'Facebook property ID', 'fusion' ),
-							array(
-								'input_type' => 'number'
+					'twitter' => new \Fieldmanager_Group( 'Twitter',
+						array(
+							'children' => array(
+								'profile' => new \Fieldmanager_Textfield(
+									esc_html__( 'Twitter publisher account', 'fusion' ),
+										array(
+											'description' => __( 'Username (without the @) for Twitter via links', 'fusion' ),
+										)
+									),
+								)
 							)
-						),
-					'tw_profile' => new \Fieldmanager_Textfield(
-						esc_html__( 'Twitter publisher account', 'fusion' ),
-							array(
-								'description' => __( 'Username (without the @) for Twitter via links', 'fusion' ),
-							)
-						),
+						)
+					)
 				)
-			)
-		);
+			);
 
-		$distribution_settings_fields->activate_submenu_page();
+		$packaging_preview_fields->activate_submenu_page();
 	}
 }
