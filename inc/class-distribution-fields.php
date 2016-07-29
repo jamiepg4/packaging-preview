@@ -77,7 +77,6 @@ class Distribution_Fields {
 		$meta_group = new \Fieldmanager_Group( '', array(
 			'name'               => 'fusion_distribution',
 			'tabbed'             => true,
-			'persist_active_tab' => false,
 			) );
 
 		// Can't use $fm_group->add_child(): https://github.com/alleyinteractive/wordpress-fieldmanager/pull/172
