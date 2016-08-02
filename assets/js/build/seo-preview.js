@@ -392,7 +392,6 @@ var jQuery = (typeof window !== "undefined" ? window['jQuery'] : typeof global !
 		model      = new SeoPreviewModel( fusionSeoPreviewData.model );
 		seoPreview = new SeoPreviewView( { active: currentTab, model: model } );
 
-        console.log( fusionSeoPreviewData );
 		switch ( fusionSeoPreviewData.context ) {
 			case 'term':
 				$metaBox = $('.fm-fusion_distribution-wrapper').closest('td');
