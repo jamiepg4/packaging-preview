@@ -151,7 +151,7 @@ class Distribution_Fields {
 						)
 					) ),
 				'description'         => new \Fieldmanager_TextArea( '<strong>' . esc_html__( 'Description', 'packaging-preview' ) . '</strong>', array(
-					'description'     => esc_html__( 'Descriptions are limited to 200 characters.', 'packaging-preview' ),
+					'description'     => __( 'Descriptions are limited to 200 characters.', 'packaging-preview' ),
 					'escape'          => array( 'label' => 'wp_kses_post' ),
 					'attributes'      => array(
 						'style'           => 'width:100%',
@@ -194,7 +194,7 @@ class Distribution_Fields {
 		if ( 'post' === $context ) {
 			$seo_group->children['keywords'] = new \Fieldmanager_TextField( '<strong>' . esc_html__( 'Google News Keywords', 'packaging-preview' ) . '</strong>', array(
 				'name'            => 'keywords',
-				'description'     => sprintf( __( 'These keywords (up to 10, separated by commas) should answer the "who, what, and where" of the story, and include any potential misspellings of those keywords.', 'packaging-preview' ), 'https://docs.google.com/a/fusion.net/document/d/1o2eZL2iFPS7UN9as3zMwr6OrZGIqJn3EAZEmaLWAoOU/edit#heading=h.xszsas4yizyg' ),
+				'description'     => __( 'These keywords (up to 10, separated by commas) should answer the "who, what, and where" of the story, and include any potential misspellings of those keywords.', 'packaging-preview' ),
 				'escape'          => array( 'label' => 'wp_kses_post', 'description' => 'wp_kses_post' ),
 				'attributes'      => array(
 					'style'           => 'width:100%',
