@@ -37,10 +37,10 @@ class Distribution_Fields {
 	 * Do whatever needed after post types have been registered
 	 */
 	public function action_init() {
-		foreach ( Packaging_Preview::$post_types as $post_type ) {
+		foreach ( Packaging_Preview::post_types() as $post_type ) {
 			add_action( "fm_post_{$post_type}", array( $this, 'action_fm_post_content_post_types' ) );
 		}
-		foreach ( Packaging_Preview::$taxonomies as $taxonomy ) {
+		foreach ( Packaging_Preview::taxonomies() as $taxonomy ) {
 			// These fields are lower priority on term pages
 			add_action( "fm_term_{$taxonomy}", array( $this, 'action_fm_term_content_taxonomies' ), 20 );
 		}

@@ -30,7 +30,7 @@ class SEO_Preview {
 		$current_screen = get_current_screen();
 
 		if ( 'edit-tags' === $current_screen->base && isset( $current_screen->taxonomy )
-				&& in_array( $current_screen->taxonomy, Packaging_Preview::$taxonomies )
+				&& in_array( $current_screen->taxonomy, Packaging_Preview::taxonomies() )
 				&& ! empty( $_GET['tag_ID'] ) ) {
 			$queried_term = get_term( absint( $_GET['tag_ID'] ), $current_screen->taxonomy );
 			if ( ! $queried_term ) {
@@ -39,7 +39,7 @@ class SEO_Preview {
 			$context = 'term';
 			$object_id = $queried_term->term_id;
 		} else if ( 'term' === $current_screen->base && isset( $current_screen->taxonomy )
-				&& in_array( $current_screen->taxonomy, Packaging_Preview::$taxonomies )
+				&& in_array( $current_screen->taxonomy, Packaging_Preview::taxonomies() )
 				&& ! empty( $_GET['term_id'] ) ) {
 			$queried_term = get_term( absint( $_GET['term_id'] ), $current_screen->taxonomy );
 			if ( ! $queried_term ) {
@@ -48,7 +48,7 @@ class SEO_Preview {
 			$context = 'term';
 			$object_id = $queried_term->term_id;
 		} else if ( in_array( $current_screen->base, array( 'post', 'post-new' ) )
-				&& in_array( $current_screen->post_type, Packaging_Preview::$post_types ) ) {
+				&& in_array( $current_screen->post_type, Packaging_Preview::post_types() ) ) {
 			$context = 'post';
 			$object_id = get_the_ID();
 		}

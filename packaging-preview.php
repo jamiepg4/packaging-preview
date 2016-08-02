@@ -19,9 +19,6 @@ class Packaging_Preview {
 
 	private static $instance;
 
-	public static $post_types;
-	public static $taxonomies;
-
 	public static function get_instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Packaging_Preview;
@@ -35,20 +32,6 @@ class Packaging_Preview {
 
 		spl_autoload_register( array( $this, 'spl_autoload' ) );
 
-		/*
-		 * Filter the post types Packaging Preview is available for
-		 *
-		 * @param array Array of post types
-		 */
-		static::$post_types = apply_filters( 'packaging_preview_post_types', array( 'post' ) );
-
-		/*
-		 * Filter the taxonomies Packaging Preview is available for
-		 *
-		 * @param array Array of taxonomies
-		 */
-		static::$taxonomies = apply_filters( 'packaging_preview_taxonomies', array( 'category', 'post_tag' ) );
-
 		require_once 'inc/utils-functions.php';
 		require_once 'inc/distribution-meta-functions.php';
 
@@ -56,6 +39,24 @@ class Packaging_Preview {
 		$this->distribution_fields = Distribution_Fields::get_instance();
 		$this->distribution_metadata = Distribution_Metadata::get_instance();
 		$this->seo_preview = SEO_Preview::get_instance( $this->post_types, $this->taxonomies );
+	}
+
+	/*
+	 * Filter the post types Packaging Preview is available for
+	 *
+	 * @param array Array of post types
+	 */
+	public static function post_types() {
+		return apply_filters( 'packaging_preview_post_types', array( 'post' ) );
+	}
+
+	/*
+	 * Filter the taxonomies Packaging Preview is available for
+	 *
+	 * @param array Array of taxonomies
+	 */
+	public static function taxonomies() {
+		return apply_filters( 'packaging_preview_taxonomies', array( 'category', 'post_tag' ) );
 	}
 
 	/**

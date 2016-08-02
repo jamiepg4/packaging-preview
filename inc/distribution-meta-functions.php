@@ -29,7 +29,7 @@ function get_seo_keywords( $post_id ) {
 
 	if ( empty( $seo_keywords ) ) {
 		$terms = array();
-		foreach ( Packaging_Preview::$taxonomies as $taxonomy ) {
+		foreach ( Packaging_Preview::taxonomies() as $taxonomy ) {
 			$terms = $terms + wp_list_pluck( get_the_terms( $post_id, 'post_tag' ), 'name' );
 		}
 

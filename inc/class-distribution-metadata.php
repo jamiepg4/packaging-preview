@@ -38,10 +38,10 @@ class Distribution_Metadata {
 	 */
 	public function action_wp_head_social_meta_tags() {
 
-		if ( is_singular( Packaging_Preview::$post_types ) ) {
+		if ( is_singular( Packaging_Preview::post_types() ) ) {
 			$context = 'post';
 			$object_id = get_queried_object_id();
-		} else if ( is_tax( Packaging_Preview::$taxonomies ) ) {
+		} else if ( is_tax( Packaging_Preview::taxonomies() ) ) {
 			$context = 'term';
 			$object_id = get_queried_object_id();
 		} else if ( is_home() ) {
@@ -67,7 +67,7 @@ class Distribution_Metadata {
 		$meta_tags .= '<meta name="description" content="' . esc_attr( $this->get_current_meta_description( $object_id ) ) . '" />' . PHP_EOL;
 
 		if ( $object_id && 'post' === $context
-				&& in_array( get_post_type( $object_id ), Packaging_Preview::$post_types ) ) {
+				&& in_array( get_post_type( $object_id ), Packaging_Preview::post_types() ) ) {
 			$meta_tags .= '<meta name="news_keywords" content="' . esc_attr( get_seo_keywords( $object_id ) ) . '" />' . PHP_EOL;
 
 			if ( is_google_standout_enabled( $object_id ) ) {
