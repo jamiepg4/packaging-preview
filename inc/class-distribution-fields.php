@@ -208,21 +208,18 @@ class Distribution_Fields {
 
 		$meta_group->children['seo'] = $seo_group;
 
-		if ( 'post' === $context ) {
-			$meta_group->children['packaging-preview'] = new \Fieldmanager_Group( '<i class="logo-fusion-f"></i> ' . esc_html__( 'Fusion', 'packaging-preview' ), array(
-				'name'                    => 'packaging-preview',
-				'escape'                  => array( 'label' => 'wp_kses_post' ),
-				'children'                => array(
-					'why' => new \Fieldmanager_TextArea( '<strong>' . esc_html__( "What's your why-Fusion graph?", 'packaging-preview' ) . '</strong>', array(
-						'escape'          => array( 'label' => 'wp_kses_post' ),
-						'attributes'      => array(
-							'style'           => 'width:100%',
-							),
-						'description'     => esc_html__( "How are you showing readers what makes this a Fusion story? Copy/paste the sentence(s) from your piece here.", 'packaging-preview' ),
-						) ),
-				)
-			) );
-		}
+		/**
+		 * Allow filtering of the fields here.
+		 *
+		 * Themes can use this filter to add additional settings fields and
+		 * preview panels. Make sure to register them on the same
+		 * fm_{context}_{subcontext} hooks that the form is registered on.
+		 *
+		 * @param Fieldmanager_Group All fields in theis group
+		 * @param string Fieldmanager context, ie "post" or "term"
+		 * @param string Fieldmanager subcontext, ie post type or taxonomy slug
+		 */
+		$meta_group = apply_filters( 'packaging_preview_settings_fields', $meta_group, $context, $subcontext );
 
 		return $meta_group;
 
