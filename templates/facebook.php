@@ -5,7 +5,8 @@
 	<div class="seo-preview-view">
 
 		<div class="seo-preview-facebook-share-text-wrap">
-			<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/facebook-head-s50.png' ); ?>" />
+			<img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . '/assets/images/facebook-head-s50.png' ); ?>" />
+
 			<div class="seo-preview-facebook-share-text">
 				<# if ( data.facebook_share_text !== '' ) { #>
 					{{ data.facebook_share_text }}
