@@ -38,7 +38,7 @@ class Packaging_Preview {
 		$this->distribution_settings = Distribution_Settings::get_instance();
 		$this->distribution_fields = Distribution_Fields::get_instance();
 		$this->distribution_metadata = Distribution_Metadata::get_instance();
-		$this->seo_preview = SEO_Preview::get_instance( $this->post_types, $this->taxonomies );
+		$this->seo_preview = SEO_Preview::get_instance();
 	}
 
 	/*
