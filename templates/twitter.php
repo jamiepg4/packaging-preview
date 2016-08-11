@@ -8,17 +8,14 @@
 				<label>Preview Type</label>
 			</div>
 			<select class="fm-element">
-				<option value="wp-published-tweet" selected="">@Fusion’s tweet</option>
+				<option value="wp-published-tweet" selected="">Publisher share tweet</option>
 				<option value="user-shared-tweet">User Shared Tweet</option>
 			</select>
 			<div class="fm-item-description">
 				<p>
-					@Fusion’s tweet shows a preview of how the tweet will look via auto-publishing to our main Twitter account.
-					<span class="link-show-more-text"> .... More</span>
+					Publisher share tweet shows a preview of how the tweet will look via auto-publishing.
+					User Shared Tweet shows a preview of how the tweet will look via the share buttons from our site, as well as provide possible recirculation options for the social team.
 				</p>
-				<span class="fm-more-text">
-					<p>User Shared Tweet shows a preview of how the tweet will look via the share buttons from our site, as well as provide possible recirculation options for the social team.</p>
-				</span>
 			</div>
 		</div>
 	</div>
