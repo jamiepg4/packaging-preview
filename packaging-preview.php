@@ -30,6 +30,11 @@ class Packaging_Preview {
 
 	private function load() {
 
+		// If Fieldmanager hasn't been initialized yet, bail to prevent fatals
+		if ( ! function_exists( 'fm_register_submenu_page' ) ) {
+			return;
+		}
+
 		spl_autoload_register( array( $this, 'spl_autoload' ) );
 
 		require_once 'inc/utils-functions.php';
