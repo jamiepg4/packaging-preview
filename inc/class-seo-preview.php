@@ -47,8 +47,7 @@ class SEO_Preview {
 			}
 			$context = 'term';
 			$object_id = $queried_term->term_id;
-		} else if ( in_array( $current_screen->base, array( 'post', 'post-new' ) )
-				&& in_array( $current_screen->post_type, Packaging_Preview::post_types() ) ) {
+		} else if ( 'edit.php' === $current_screen->base && in_array( $current_screen->post_type, Packaging_Preview::post_types() ) ) {
 			$context = 'post';
 			$object_id = get_the_ID();
 		}
