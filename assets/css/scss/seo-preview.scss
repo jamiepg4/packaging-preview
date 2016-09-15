@@ -17,6 +17,7 @@ $font-family-seo-preview-default: Helvetica, Arial, 'lucida grande', tahoma, ver
 #seo-preview {
 	flex: 2;
 	width: auto;
+	min-width: 640px;
 	margin: 34px 0 0 12px;
 	overflow: hidden;
 	background: #ededed;
