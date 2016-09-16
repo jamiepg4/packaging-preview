@@ -38,6 +38,7 @@ class Distribution_Settings {
 				'children' => array(
 					'facebook' => new \Fieldmanager_Group( 'Facebook',
 						array(
+							'name' => 'facebook',
 							'children'=> array(
 								'profile' => new \Fieldmanager_Textfield(
 									esc_html__( 'Facebook publisher profile', 'fusion' ),
@@ -63,21 +64,28 @@ class Distribution_Settings {
 							'children' => array(
 								'profile' => new \Fieldmanager_Textfield(
 									esc_html__( 'Twitter publisher account', 'fusion' ),
-										array(
-											'description' => __( 'Username (without the @) for Twitter via links', 'fusion' ),
-										)
-									),
+									array(
+										'description' => __( 'Username (without the @) for Twitter via links', 'fusion' ),
+									)
 								),
 								'logo' => new \Fieldmanager_Media(
 									esc_html__( 'Twitter profile logo (for preview)', 'fusion' ),
-									array(
-									)
+									array()
 								),
+								'theme_color' => new \Fieldmanager_Textfield(
+									esc_html__( 'Twitter theme color', 'fusion' ),
+									array(
+										'description' => __( 'The accent color specified in the user\'s Twitter profile theme', 'fusion' ),
+										'input_type' => 'color',
+										'default_value' => '292f33',
+									)
+								)
 							)
 						)
 					)
 				)
-			);
+			)
+		);
 
 		$packaging_preview_fields->activate_submenu_page();
 	}

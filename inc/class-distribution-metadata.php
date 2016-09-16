@@ -201,7 +201,7 @@ class Distribution_Metadata {
 			'twitter:url'         => esc_url( $this->get_request_uri() ),
 			);
 
-		if ( $twitter_site = get_settings_field( 'packaging_preview', 'twitter', 'site' ) ) {
+		if ( $twitter_site = $this->get_twitter_username( $object_id, $context ) ) {
 			$tags['twitter:site'] = '@' . $twitter_site;
 		}
 
@@ -236,5 +236,32 @@ class Distribution_Metadata {
 
 		return $tags;
 
+	}
+
+	/**
+	 * Get the Twitter username for preview or meta tags
+	 *
+	 * @param int Object (post or term) ID
+	 * @param string "post"|"term" context
+	 * @return string
+	 */
+	public function get_twitter_username( $object_id = null, $context = null ) {
+
+		$twitter_username = get_settings_field( 'packaging_preview', 'twitter', 'profile' );
+
+		/**
+		 * Filter the Twitter username based on the post or object being viewed.
+		 *
+		 * Allows things like associating a different Twitter user with a post based on it's category or author.
+		 *
+		 * @filter packaging_preview_twitter_user
+		 *
+		 * @param string Twitter username; set in plugin settings page
+		 * @param int Object (post or term) ID
+		 * @param string "post"|"term" view context
+		 */
+		$twitter_username = apply_filters( 'packaging_preview_twitter_user', $twitter_username, $object_id, $context );
+
+		return $twitter_username;
 	}
 }

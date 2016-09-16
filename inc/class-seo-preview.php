@@ -62,13 +62,6 @@ class SEO_Preview {
 
 		wp_enqueue_style( 'seo-preview', plugin_dir_url( dirname( __FILE__ ) ) . '/assets/css/seo-preview.css' );
 
-		//if ( $obj instanceof Post ) {
-			//$twitter_username = Distribution_Metadata::get_twitter_username_via( $obj );
-		//}
-		//if ( empty( $twitter_username ) ) {
-			//$twitter_username = Config::get( 'TWITTER_USERNAME' );
-		//}
-
 		$model = array(
 			'title'                       => Packaging_Preview\get_seo_title( $object_id ),
 			'url'                         => get_permalink( $object_id ),
@@ -79,8 +72,8 @@ class SEO_Preview {
 			'twitter_card_desc'           => Packaging_Preview\get_twitter_card_tag( $object_id, 'description' ),
 			'twitter_card_image'          => Packaging_Preview\get_twitter_card_tag( $object_id, 'image' ),
 			'twitter_share_text'          => Packaging_Preview\get_twitter_share_text( $object_id ),
-			'twitter_site_name'           => Distribution_Metadata::get_instance()->get_facebook_open_graph_meta_tags()['og:site_name'],
-			'twitter_user_name'           => '@' . $twitter_username,
+			'twitter_site_name'           => Distribution_Metadata::get_instance()->get_twitter_card_meta_tags()['og:site_name'],
+			'twitter_user_name'           => '@' . Distribution_Metadata::get_instance()->get_twitter_username(),
 			'twitter_char_limit'          => FUSION_TWITTER_SHARE_TEXT_MAX_LENGTH,
 			'twitter_avatar'              => get_template_directory_uri() . '/assets/images/twitter-avatar.png',
 			'twitter_avatar_default'      => get_template_directory_uri() . '/assets/images/twitter-avatar-default.png',
